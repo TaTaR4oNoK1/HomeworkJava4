@@ -5,11 +5,13 @@ public class LiveLock {
     public static void main(String[] args) {
         Thread t1 = new Thread(() -> {
             while (true) {
-                synchronized(lock) {
-                    if (!turn) {
+                synchronized (lock) {
+                    while (!turn) {
                         try {
                             lock.wait();
-                        } catch (InterruptedException e) {}
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                     System.out.println("1");
                     turn = false;
@@ -20,11 +22,13 @@ public class LiveLock {
 
         Thread t2 = new Thread(() -> {
             while (true) {
-                synchronized(lock) {
-                    if (turn) {
+                synchronized (lock) {
+                    while (turn) {
                         try {
                             lock.wait();
-                        } catch (InterruptedException e) {}
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                     System.out.println("2");
                     turn = true;
